@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blood Test Analyzer</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+    <h1>Upload a file</h1>
+    <form id="upload-form" method="post" enctype="multipart/form-data" action="/upload">
+        <div id="drop-zone">
+            <p id="drop-text">Drag & Drop your file here or click to select</p>
+            <input id="file" name="file" type="file"/>
+            <p id="file-name">
+                <span id="file-label"></span>
+                <span id="clear-file" title="Remove file">&times;</span>
+            </p>
+        </div>
+        <br />
+        <button id="btn1" type="submit">Upload</button>
+    </form>
+
+   <script src="script.js"></script>
+</body>
+</html>
