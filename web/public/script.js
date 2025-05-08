@@ -1,18 +1,18 @@
-const dropZone = document.getElementById('drop-zone');
+document.addEventListener('DOMContentLoaded',() => {
+    const dropZone = document.getElementById('drop-zone');
 const fileInput = document.getElementById('file');
 const fileNameContainer = document.getElementById('file-name');
 const fileLabel = document.getElementById('file-label');
 const clearBtn = document.getElementById('clear-file');
 const dropText = document.getElementById('drop-text');
 const uploadButton = document.getElementById('btn1');
-const form = document.getElementById('upload-form'); // Add this to get the form element
+const resultBox = document.getElementById('result-box');
 
 const updateFileName = () => {
     if (fileInput.files.length > 0) {
         dropText.style.display = 'none';
         fileLabel.textContent = `Selected file: ${fileInput.files[0].name}`;
         clearBtn.style.display = 'inline';
-        fileInput.disabled = false;
     } else {
         fileLabel.textContent = '';
         clearBtn.style.display = 'none';
@@ -22,9 +22,7 @@ const updateFileName = () => {
 };
 
 dropZone.addEventListener('click', () => {
-    if (!fileInput.disabled) {
-        fileInput.click();
-    }
+    if (!fileInput.disabled) fileInput.click();
 });
 
 fileInput.addEventListener('change', updateFileName);
@@ -52,35 +50,29 @@ clearBtn.addEventListener('click', (e) => {
     fileInput.value = '';
     updateFileName();
 });
-
-// ✅ Upload logic using fetch
 uploadButton.addEventListener('click', async (e) => {
     e.preventDefault();
-
-    if (fileInput.files.length === 0) {
-        alert("Please select a file before uploading.");
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', fileInput.files[0]);
-
-    try {
-        const res = await fetch('/upload', {
-            method: 'POST',
-            body: formData
-        });
-
-        const resultText = await res.text();
-
-        if (res.ok) {
-            alert(`✅ ${resultText}`);
-            fileInput.disabled = true;
-        } else {
-            alert(`❌ Upload failed: ${resultText}`);
+    if (fileInput.files.length > 0) {
+        const form = new FormData(document.querySelector('form'));
+        try {
+            const res = await fetch('/upload', {
+                method: 'POST',
+                body: form
+            });
+            const data = await res.json();
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+            alert(data.message);
+            resultBox.textContent = data.text;
+        } catch (err) {
+            alert("Failed to upload or parse file.");
+            console.error(err);
         }
-    } catch (err) {
-        console.error('Error uploading file:', err);
-        alert("An error occurred during upload.");
+        fileInput.disabled = false;
+    } else {
+        alert("Please select a file before uploading.");
     }
+});
 });
