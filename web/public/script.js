@@ -64,15 +64,16 @@ uploadButton.addEventListener('click', async (e) => {
                 alert(data.error);
                 return;
             }
-            alert(data.message);
-            resultBox.textContent = data.text;
-        } catch (err) {
-            alert("Failed to upload or parse file.");
-            console.error(err);
-        }
-        fileInput.disabled = false;
-    } else {
-        alert("Please select a file before uploading.");
+             document.getElementById('result-text').value = 
+        `=== Original Text ===\n${data.text}\n\n` +
+        `=== AI Analysis ===\n${data.analysis}`;
+      
+    } catch (err) {
+      alert("Upload failed");
+      console.error(err);
     }
+  } else {
+    alert("Please select a file.");
+  }
 });
 });

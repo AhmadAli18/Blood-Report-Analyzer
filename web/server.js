@@ -2,18 +2,19 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+require('dotenv').config();
 const pdfParse = require('pdf-parse');
 const mammoth = require('mammoth');
 const Tesseract = require('tesseract.js');
 const app = express();
 const PORT = 3000;
-
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 // Set upload directory
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
-
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 // Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -23,7 +24,33 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`)
 });
 const upload = multer({ storage });
+async function analyzeBloodReport(text) {
+  await new Promise(resolve => setTimeout(resolve, 1000));
+  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+  
+  const prompt = `
+  Analyze this blood test report and:
+  1. List all metrics with abnormal values (mark as HIGH/LOW).
+  2. Explain each abnormal metric in simple terms.
+  3. Suggest possible health implications.
+  4. Ignore normal values.
 
+  Report format:
+  - **Metric Name**: Value (Normal Range) → Risk Level
+  - Explanation: [Simple explanation]
+  - Suggestion: [Actionable advice]
+
+  Blood Test Data:
+  ${text}
+  `;
+  try{
+    const result = await model.generateContent(prompt);
+    return result.response.text();
+  }
+  catch(error) {
+    throw new Error(`Gemini API error : ${error.message}`);
+  }
+}
 // Upload route
 app.post('/upload', upload.single('file'), async (req, res) => {
   try {
@@ -51,14 +78,22 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       return res.status(400).json({ error: 'Unsupported file type.' });
     }
 
-    console.log('Extracted text preview:', extractedText.slice(0, 100));
-
-    res.json({ message: `File uploaded: ${req.file.originalname}`, text: extractedText });
+    let analysis = "Could not analyze this report. Please check if it's a valid blood test.";
+    try {
+      analysis = await analyzeBloodReport(extractedText);
+    } catch (geminiError) {
+      console.error('Gemini analysis failed:', geminiError.message);
+    }
+    res.json({ 
+      message: `File uploaded: ${req.file.originalname}`,
+      text: extractedText,  // Keep original parsed text
+      analysis: analysis    // Add Gemini's analysis
+    });
 
   } catch (error) {
-    console.error('Error while processing file:', error.message);
-    console.error(error.stack);
-    res.status(500).json({ error: 'Failed to process the file.' });
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Analysis failed' });
+
   }
 });
 
