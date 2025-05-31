@@ -22,8 +22,14 @@
     </form>
     <div id="result-box">
         <h2>Analysis Result:</h2>
-        <textarea id="result-text" placeholder="The analysis will appear here..." readonly></textarea>
+        <div id="result-text" class="result-content" placeholder="The analysis will appear here..." readonly></div>
     </div>
+    <div id="follow-up-box" style="display: none;">
+    <h2>Ask a Follow-up Question</h2>
+    <textarea id="follow-up-question" placeholder="Type your question about the results here..."></textarea>
+    <button id="ask-btn">Ask</button>
+    <div id="follow-up-answer" class="result-content"></div>
+</div>
    <script src="script.js"></script>
 </body>
 </html>
