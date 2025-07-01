@@ -130,10 +130,10 @@ app.post('/upload', upload.single('file'), async (req, res) => {
       throw new Error('No text could be extracted from the file.');
     }
 
-    // Analyze the extracted text
+ 
     const analysis = await analyzeBloodReport(extractedText);
 
-    // Clean up the uploaded file
+
     fs.unlink(filePath, (err) => {
       if (err) console.error('Error deleting file:', err);
     });
@@ -161,23 +161,51 @@ app.post('/upload', upload.single('file'), async (req, res) => {
 
 app.post('/followup', async (req, res) => {
   try {
-    const { originalText, analysis, question } = req.body;
+    const { originalText, analysis, question, conversationHistory = [] } = req.body;
     
     if (!originalText || !question) {
       return res.status(400).json({ error: 'Missing required fields.' });
     }
 
-    const answer = await handleFollowUpQuestion(originalText, analysis, question);
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     
-    res.json({ 
-      answer: answer
-    });
+    let prompt = `
+    You are a medical assistant helping a patient understand their blood test results.
+    Below is the original blood test data and initial analysis.`;
+
+    
+    if (conversationHistory.length > 0) {
+      prompt += `\n\nPrevious conversation context:`;
+      conversationHistory.forEach((item, index) => {
+        prompt += `\n\nQuestion ${index + 1}: ${item.question}\nAnswer: ${item.answer}`;
+      });
+    }
+
+    prompt += `
+    
+    New Question: ${question}
+
+    Original Blood Test Data:
+    ${originalText}
+
+    Initial Analysis:
+    ${analysis}
+
+    Please provide:
+    1. A direct answer to the specific question
+    2. Context from previous questions if relevant
+    3. Clear, simple language appropriate for a patient
+    `;
+
+    const result = await model.generateContent(prompt);
+    const answer = result.response.text();
+    
+    res.json({ answer });
 
   } catch (error) {
     console.error('Follow-up error:', error.message);
     res.status(500).json({ 
-      error: error.message || 'Failed to process follow-up question',
-      details: process.env.NODE_ENV === 'development' ? error.stack : undefined
+      error: error.message || 'Failed to process follow-up question'
     });
   }
 });

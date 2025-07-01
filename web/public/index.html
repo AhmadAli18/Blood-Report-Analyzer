@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blood Test Analyzer</title>
     <link href="style.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <h1>Upload a file</h1>
@@ -24,12 +25,17 @@
         <h2>Analysis Result:</h2>
         <div id="result-text" class="result-content" placeholder="The analysis will appear here..." readonly></div>
     </div>
-    <div id="follow-up-box" style="display: none;">
-    <h2>Ask a Follow-up Question</h2>
-    <textarea id="follow-up-question" placeholder="Type your question about the results here..."></textarea>
-    <button id="ask-btn">Ask</button>
-    <div id="follow-up-answer" class="result-content"></div>
-</div>
-   <script src="script.js"></script>
+    <div id="chat-container" style="display: none;">
+        <div id="chat-header">
+            <span>Follow-up Questions</span>
+            <button id="minimize-chat"><i class="fas fa-minus"></i></button>
+        </div>
+        <div id="chat-messages"></div>
+        <div id="chat-input-area">
+            <textarea id="user-question" placeholder="Type your question about the results here..." rows="1"></textarea>
+            <button id="send-question"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    <script src="script.js"></script>
 </body>
 </html>
