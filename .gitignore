@@ -2,5 +2,5 @@ web/node_modules/
 
 web/uploads/
 
-web/.env
-web/*.env
+**/.env
+**/*.env
