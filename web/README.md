@@ -55,12 +55,14 @@ Supported formats:
 * *In-browser conversation memory* 
 
 # Project Structure
-`Blood-test-analyzer/`
-`├── web/`
-`│   ├── public/`
-`│   │   ├── index.html           # UI`
-`│   │   ├── style.css            # Styling`
-`│   │   └── script.js            # Frontend` `logic`
-`│   └── uploads/                 # Stored` `files`
-`├── server.js                    # Backend +` `AI processing`
-`└── package.json`
+``` 
+Blood-test-analyzer/
+├── web/
+│   ├── public/
+│   │   ├── index.html           # UI
+│   │   ├── style.css            # Styling
+│   │   └── script.js            # Frontend logic
+│   └── uploads/                 # Stored files
+├── server.js                    # Backend + AI processing
+└── package.json 
+```
